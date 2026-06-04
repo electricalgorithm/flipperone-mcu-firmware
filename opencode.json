@@ -1,0 +1,37 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    ".opencode/sops/build-firmware.md",
+    ".opencode/sops/flash-deploy.md",
+    ".opencode/sops/development-workflow.md"
+  ],
+  "mcp": {
+    "picotool": {
+      "type": "local",
+      "command": [
+        "uv",
+        "--directory",
+        "/Users/gokhankocmarli/Projects/picotool-mcp-server",
+        "run",
+        "python",
+        "-m",
+        "picotool_mcp_server"
+      ]
+    },
+    "filesystem": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/gokhankocmarli/Projects/flipperone-mcu-firmware"
+      ]
+    },
+    "serial": {
+      "type": "local",
+      "command": [
+        "/Users/gokhankocmarli/Projects/serial-mcp-server/target/release/serial-mcp-server"
+      ]
+    }
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "skill_name": "flipper-one-firmware",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "i just cloned the flipper one mcu firmware repo but i cant get it to build. i have the pico sdk installed at /opt/pico-sdk and i have arm-none-eabi-gcc. what commands should i run to build it? also what do i need to do about submodules?",
+      "expected_output": "Step-by-step build instructions including submodule init, CMake configure, and build commands, with explanations of the build output artifacts",
+      "expectations": [
+        "The output mentions `git submodule update --init --recursive`",
+        "The output shows the `cmake -B build` command with PICO_SDK_PATH",
+        "The output shows `cmake --build build` or ninja command",
+        "The output identifies the UF2 and ELF output files",
+        "The output references the dependencies (ARM GCC, CMake, Ninja)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "i need to add a new hall effect sensor to the flipper one. its a standard i2c sensor at address 0x0C. the sensor has 3 registers: 0x00 is the device id (should read 0x48), 0x01 is the config register, and 0x02-0x03 is the 16-bit hall reading. can you show me how to write the driver and integrate it as a service? follow the existing patterns in the codebase",
+      "expected_output": "A complete I2C driver (.h and .c files) following the existing driver patterns, plus a service that reads from it periodically",
+      "expectations": [
+        "The driver uses the opaque struct pattern with `furi_check` for preconditions",
+        "The driver uses `furi_hal_i2c_acquire`/`release` for I2C access",
+        "The driver has init/deinit functions matching the existing pattern",
+        "The service follows the FuriEventLoop + message queue pattern",
+        "The service is registered in FLIPPER_SERVICES array",
+        "The code uses the TAG and FURI_LOG pattern"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "im looking at the power management service in applications/services/power/ and i want to understand how it works. can you walk me through the architecture? specifically: how does it communicate with the bq25792 charger chip, how do other services query the battery state, and what happens when the user presses the power button?",
+      "expected_output": "An architectural walkthrough of the power service covering I2C communication with BQ25792, the Record API for IPC, and the button-to-event flow",
+      "expectations": [
+        "The walkthrough references the BQ25792 driver in lib/drivers/bq25792/",
+        "The walkthrough explains the Record API pattern (furi_record_open/close)",
+        "The walkthrough explains the I2C communication with furi_hal_i2c_acquire/release",
+        "The walkthrough covers the event loop and message queue pattern",
+        "The walkthrough mentions the power button flow (input_srv -> power_srv)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "im trying to understand the display pipeline for the flipper one. how does the JD9853 display work, how does the Clay GUI library render graphics, and what would i need to do to add a new settings screen with some buttons and text? show me the full flow from the gui service down to the display hardware",
+      "expected_output": "A walkthrough of the display rendering pipeline from Clay layout to JD9853 QSPI writes, plus example code for a settings-style View with buttons and text",
+      "expectations": [
+        "The output references the JD9853 display driver in lib/drivers/display/",
+        "The output explains the Clay immediate-mode rendering loop in gui.c",
+        "The output shows how to create a View with view_alloc and view_set_layout_callback",
+        "The output shows example CLAY() macro usage for layout",
+        "The output mentions view priorities (GuiViewPriorityApplication etc.)",
+        "The output references clay_render.c for the rendering pipeline"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "the flipper one has ws2812 addressable leds driven through PIO. i want to understand how that works - how does the PIO program drive the led data line, how does the led service control individual leds, and how would i add a new led animation pattern? walk me through the code and show me how its structured",
+      "expected_output": "An explanation of the WS2812 PIO driver architecture, the LED service patterns, and guidance on adding new LED animations",
+      "expectations": [
+        "The output references the WS2812 PIO assembly in lib/drivers/ws2812/",
+        "The output explains how PIO state machines drive the LED data line timing",
+        "The output references the led service in applications/services/led/",
+        "The output explains how LED strip data is buffered and sent",
+        "The output shows how to add a new animation pattern"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "how does the i2c intercom between the mcu and the main linux cpu work? i see there's an i2c_intercom service and also an i2c_negotiator service. what do each of these do, how do they handle the shared i2c bus, and what kind of messages do they exchange?",
+      "expected_output": "An architectural explanation of the I2C-based communication between the MCU and the main Linux CPU, covering both the intercom and negotiator services",
+      "expectations": [
+        "The output explains the difference between the intercom and negotiator services",
+        "The output references the I2C slave driver in lib/drivers/i2c_slave/",
+        "The output explains bus negotiation/arbitration between MCU and CPU",
+        "The output describes the message format or protocol used",
+        "The output references the i2c_multi_slave driver if applicable"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "im looking at the haptic subsystem. the flipper one uses a DRV2605L with an LRA motor. how does the driver work, what kind of effects/triggers does it support, and how is the haptic service integrated with the rest of the system? show me how to trigger a vibration from a button press",
+      "expected_output": "An explanation of the DRV2605L haptic driver capabilities, the haptic service architecture, and the full flow from button press to vibration",
+      "expectations": [
+        "The output references the DRV2605L driver in lib/drivers/drv2605l/",
+        "The output explains DRV2605L features (LRA, auto-resonance, waveform sequencer, ROM library effects)",
+        "The output references the haptic service in applications/services/haptic/",
+        "The output shows how input events flow to the haptic service",
+        "The output explains the I2C communication pattern with the driver"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "im curious about the touchpad on the flipper one. it uses an iqs7211e capacitive touch controller. how does it detect touch, how does the data flow from the controller through the service to the gui, and how would i add gesture support?",
+      "expected_output": "An explanation of the IQS7211E touch controller, the touch input pipeline, and guidance on adding gesture recognition",
+      "expectations": [
+        "The output references the IQS7211E driver in lib/drivers/iqs7211e/",
+        "The output explains how the touch controller detects touch events over I2C",
+        "The output traces the data flow: IQS7211E -> input_touch_srv -> pubsub -> gui",
+        "The output references the input_touch service in applications/services/input_touch/",
+        "The output explains how touch events are published via pubsub"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "tell me how the cli system works. i see there's a cli library in lib/cli/ and two services: cli_uart_srv and cli_vcp_srv. how do i register a new command, how does the shell handle arguments, and what's the difference between the uart and vcp services?",
+      "expected_output": "An explanation of the CLI framework architecture covering command registration, argument parsing, and the UART vs VCP backends",
+      "expectations": [
+        "The output explains the difference between cli_uart_srv and cli_vcp_srv",
+        "The output shows how to register a command in FLIPPER_CLI_COMMANDS[]",
+        "The output references the CLI library in lib/cli/",
+        "The output explains argument parsing via CliShell or cli_args",
+        "The output mentions CliCommandFlagParallelSafe and other flags"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "i need to understand how freertos is configured for this project. looking at lib/freertos/FreeRTOSConfig.h, can you walk me through the key configuration choices: why are there 32 priorities, what's the tick rate and tickless idle configuration, how do interrupt priorities work with the nvic on rp2350, and why is newlib reentrant enabled?",
+      "expected_output": "An explanation of the FreeRTOS configuration choices, covering task priorities, tickless idle, interrupt nesting on Cortex-M33, and newlib reentrancy",
+      "expectations": [
+        "The output explains configUSE_PREEMPTION and configMAX_PRIORITIES settings",
+        "The output explains configUSE_TICKLESS_IDLE=2 and its implications",
+        "The output explains interrupt priority handling with __NVIC_PRIO_BITS=4",
+        "The output explains configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY=5",
+        "The output explains why configUSE_NEWLIB_REENTRANT is enabled",
+        "The output mentions the RP2350 Cortex-M33 port specifics"
+      ]
+    }
+  ]
+}
